@@ -74,7 +74,10 @@ fn print_text(text: &epwing::subbook::Text) {
 fn main() {
     let args = match parse_command() {
         Some(x) => x,
-        None    => panic!("Invalid usage")
+        None    => {
+            println!("Usage: ep [-b <book path>] <search query>")
+            return
+        }
     };
 
     let book = match epwing::Book::open(args.book_path) {
