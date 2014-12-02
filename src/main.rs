@@ -6,6 +6,7 @@ extern crate term;
 
 struct Arguments {
     book_path: Path,
+    expand_unknown: bool,
     command: Command
 }
 
@@ -19,6 +20,7 @@ static DEFAULT_BOOK_PATH: &'static str = "/home/cyndis/data/kenkyusha/enja";
 fn parse_command() -> Option<Arguments> {
     let mut book_path = None;
     let mut query = None;
+    let mut expand_unknown = false;
 
     let args = std::os::args();
     let mut iter = args.into_iter().skip(1);
@@ -26,6 +28,8 @@ fn parse_command() -> Option<Arguments> {
     while let Some(arg) = iter.next() {
         if arg[] == "-b" {
             book_path = Some(iter.next().unwrap());
+        } else if arg[] == "--expand-unknown-characters" {
+            expand_unknown = true;
         } else {
             query = Some(arg);
         }
@@ -40,6 +44,7 @@ fn parse_command() -> Option<Arguments> {
         Some(query) => {
             Some(Arguments {
                 book_path: book_path,
+                expand_unknown: expand_unknown,
                 command: Command::Search(epwing::subbook::Index::WordAsIs, query)
             })
         },
@@ -47,7 +52,7 @@ fn parse_command() -> Option<Arguments> {
     }
 }
 
-fn print_text(text: &epwing::subbook::Text) {
+fn print_text(text: &epwing::subbook::Text, expand_unknown: bool) {
     use epwing::subbook::TextElement::{UnicodeString, CustomCharacter, Newline, Indent,
                                        NoNewline, BeginDecoration, EndDecoration, Unsupported};
 
@@ -56,7 +61,11 @@ fn print_text(text: &epwing::subbook::Text) {
     for elem in text.iter() {
         match *elem {
             UnicodeString(ref string) => write!(term, "{}", string).unwrap(),
-            CustomCharacter(_)        => (),
+            CustomCharacter(cp)       => {
+                if expand_unknown {
+                    (write!(term, "<?0x{:4x}>", cp)).unwrap();
+                }
+            },
             Newline                   => write!(term, "\n").unwrap(),
             Indent(n)                 => {
                 for _ in range(0, n) {
@@ -64,7 +73,7 @@ fn print_text(text: &epwing::subbook::Text) {
                 }
             },
             NoNewline(_enabled)       => (),
-            BeginDecoration(_deco)    => { term.attr(term::attr::Attr::Bold); },
+            BeginDecoration(_deco)    => { term.attr(term::attr::Standout(true)); },
             EndDecoration             => { term.reset(); },
             Unsupported(_tag)         => ()
         }
@@ -75,7 +84,12 @@ fn main() {
     let args = match parse_command() {
         Some(x) => x,
         None    => {
-            println!("Usage: ep [-b <book path>] <search query>")
+            println!(r"
+Usage: ep [options][-b <book path>] <search query>
+Options:
+  -b <book path>                Specify path to EPWING book.
+  --expand-unknown-characters   Show character codes for characters without Unicode codepoint.
+");
             return
         }
     };
@@ -94,12 +108,12 @@ fn main() {
         Command::Search(index, query) => {
             let result = subbook.search(index, query[]).unwrap();
             for (i, location) in result.iter().enumerate() {
-                term.attr(term::attr::Attr::Bold);
+                term.attr(term::attr::Bold);
                 writeln!(term, "-- {} of {} --", i+1, result.len());
                 term.reset();
                 let text = subbook.read_text(*location).unwrap();
 
-                print_text(&text);
+                print_text(&text, args.expand_unknown);
             }
 
             if result.len() == 0 {
