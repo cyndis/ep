@@ -1,10 +1,10 @@
 [package]
 name = "ep"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Mikko Perttunen <cyndis@kapsi.fi>"]
 
 [dependencies.epwing]
-git = "file:///home/cyndis/src/epwing.rs"
+git = "git://github.com/cyndis/epwing.rs"
 
 [dependencies]
 term = "*"
