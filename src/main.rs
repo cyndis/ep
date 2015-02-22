@@ -15,8 +15,6 @@ enum Command {
     Search(epwing::subbook::Index, String),
 }
 
-static DEFAULT_BOOK_PATH: &'static str = "/home/cyndis/data/kenkyusha/enja";
-
 fn parse_command() -> Option<Arguments> {
     let mut book_path = None;
     let mut query = None;
@@ -37,7 +35,8 @@ fn parse_command() -> Option<Arguments> {
 
     let book_path = match book_path {
         Some(p) => Path::new(p),
-        None    => Path::new(DEFAULT_BOOK_PATH)
+        None    => Path::new(std::env::var("EP_BOOK_PATH").ok().
+                                                           expect("Put book path in $EP_BOOK_PATH"))
     };
 
     match query {
@@ -101,7 +100,8 @@ fn main() {
             println!(r"
 Usage: ep [options][-b <book path>] <search query>
 Options:
-  -b <book path>                Specify path to EPWING book.
+  -b <book path>                Specify path to EPWING book. Default is environment variable
+                                $EP_BOOK_PATH.
   --expand-unknown-characters   Show character codes for characters without Unicode codepoint.
 ");
             return
