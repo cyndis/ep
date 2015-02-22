@@ -98,7 +98,7 @@ fn main() {
         Some(x) => x,
         None    => {
             println!(r"
-Usage: ep [options][-b <book path>] <search query>
+Usage: ep [options] <search query>
 Options:
   -b <book path>                Specify path to EPWING book. Default is environment variable
                                 $EP_BOOK_PATH.
