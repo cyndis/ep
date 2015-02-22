@@ -1,4 +1,4 @@
-#![feature(while_let, slicing_syntax)]
+#![feature(old_io, old_path, os, core)]
 #![allow(unused_must_use)]
 
 extern crate epwing;
@@ -10,7 +10,7 @@ struct Arguments {
     command: Command
 }
 
-#[deriving(Show)]
+#[derive(Debug)]
 enum Command {
     Search(epwing::subbook::Index, String),
 }
@@ -26,9 +26,9 @@ fn parse_command() -> Option<Arguments> {
     let mut iter = args.into_iter().skip(1);
 
     while let Some(arg) = iter.next() {
-        if arg[] == "-b" {
+        if arg == "-b" {
             book_path = Some(iter.next().unwrap());
-        } else if arg[] == "--expand-unknown-characters" {
+        } else if arg == "--expand-unknown-characters" {
             expand_unknown = true;
         } else {
             query = Some(arg);
@@ -52,6 +52,18 @@ fn parse_command() -> Option<Arguments> {
     }
 }
 
+fn convert_custom_character(cp: u16) -> Option<&'static str> {
+    match cp {
+        0xb667 => Some("[ローマ字]"),
+        0xb65e => Some("▶ "),
+        0xb66b => Some("◧"),
+
+        0xa239 => Some("ū"),
+
+        _ => None
+    }
+}
+
 fn print_text(text: &epwing::subbook::Text, expand_unknown: bool) {
     use epwing::subbook::TextElement::{UnicodeString, CustomCharacter, Newline, Indent,
                                        NoNewline, BeginDecoration, EndDecoration, Unsupported};
@@ -62,8 +74,10 @@ fn print_text(text: &epwing::subbook::Text, expand_unknown: bool) {
         match *elem {
             UnicodeString(ref string) => write!(term, "{}", string).unwrap(),
             CustomCharacter(cp)       => {
-                if expand_unknown {
-                    (write!(term, "<?0x{:4x}>", cp)).unwrap();
+                match convert_custom_character(cp) {
+                    Some(s) => write!(term, "{}", s).unwrap(),
+                    None if expand_unknown => write!(term, "<?0x{:4x}>", cp).unwrap(),
+                    _ => ()
                 }
             },
             Newline                   => write!(term, "\n").unwrap(),
@@ -73,7 +87,7 @@ fn print_text(text: &epwing::subbook::Text, expand_unknown: bool) {
                 }
             },
             NoNewline(_enabled)       => (),
-            BeginDecoration(_deco)    => { term.attr(term::attr::Standout(true)); },
+            BeginDecoration(_deco)    => { term.attr(term::Attr::Standout(true)); },
             EndDecoration             => { term.reset(); },
             Unsupported(_tag)         => ()
         }
@@ -99,16 +113,16 @@ Options:
         Err(e) => { println!("Failed to open book: {}", e); return }
     };
 
-    let spine = book.subbooks().head().unwrap();
+    let spine = &book.subbooks()[0];
     let mut subbook = book.open_subbook(spine).unwrap();
 
     let mut term = term::stdout().unwrap();
 
     match args.command {
         Command::Search(index, query) => {
-            let result = subbook.search(index, query[]).unwrap();
+            let result = subbook.search(index, &query).unwrap();
             for (i, location) in result.iter().enumerate() {
-                term.attr(term::attr::Bold);
+                term.attr(term::Attr::Bold);
                 writeln!(term, "-- {} of {} --", i+1, result.len());
                 term.reset();
                 let text = subbook.read_text(*location).unwrap();
