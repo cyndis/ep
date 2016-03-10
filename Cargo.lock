@@ -2,21 +2,21 @@
 name = "ep"
 version = "0.1.0"
 dependencies = [
- "epwing 0.0.1 (git+git://github.com/cyndis/epwing.rs)",
- "term 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "epwing 0.1.0 (git+git://github.com/cyndis/epwing.rs)",
+ "term 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "byteorder"
-version = "0.2.9"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "epwing"
-version = "0.0.1"
-source = "git+git://github.com/cyndis/epwing.rs#ceb70c02689eec62fe850288b95a1a2ef63944cd"
+version = "0.1.0"
+source = "git+git://github.com/cyndis/epwing.rs#f813db00cd0789435f4329b2ee7a2e72ff4450db"
 dependencies = [
- "byteorder 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "byteorder 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jis0208 0.1.0 (git+git://github.com/cyndis/jis0208)",
  "unicode_hfwidth 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -28,30 +28,20 @@ source = "git+git://github.com/cyndis/jis0208#4bf83bd652b0ae006ef60c18a2c759a867
 
 [[package]]
 name = "kernel32-sys"
-version = "0.0.8"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "winapi 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
-name = "libc"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "log"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "term"
-version = "0.1.12"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "kernel32-sys 0.0.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "winapi 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kernel32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -61,9 +51,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "winapi"
-version = "0.1.12"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "libc 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
+
+[[package]]
+name = "winapi-build"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
